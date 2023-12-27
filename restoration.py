@@ -21,7 +21,8 @@ def check_ckpts():
         'codeformer': 'https://github.com/sczhou/CodeFormer/releases/download/v0.1.0/codeformer.pth',
         'detection': 'https://github.com/sczhou/CodeFormer/releases/download/v0.1.0/detection_Resnet50_Final.pth',
         'parsing': 'https://github.com/sczhou/CodeFormer/releases/download/v0.1.0/parsing_parsenet.pth',
-        'realesrgan': 'https://github.com/sczhou/CodeFormer/releases/download/v0.1.0/RealESRGAN_x2plus.pth'
+        'realesrgan': 'https://github.com/sczhou/CodeFormer/releases/download/v0.1.0/RealESRGAN_x2plus.pth',
+        'inswapper': 'https://github.com/facefusion/facefusion-assets/releases/download/models/inswapper_128.onnx'
     }
     # download weights
     if not os.path.exists('CodeFormer/CodeFormer/weights/CodeFormer/codeformer.pth'):
@@ -32,6 +33,8 @@ def check_ckpts():
         load_file_from_url(url=pretrain_model_url['parsing'], model_dir='CodeFormer/CodeFormer/weights/facelib', progress=True, file_name=None)
     if not os.path.exists('CodeFormer/CodeFormer/weights/realesrgan/RealESRGAN_x2plus.pth'):
         load_file_from_url(url=pretrain_model_url['realesrgan'], model_dir='CodeFormer/CodeFormer/weights/realesrgan', progress=True, file_name=None)
+    if not os.path.exists('inswapper/checkpoints/inswapper_128.onnx'):
+        load_file_from_url(url=pretrain_model_url['inswapper'], model_dir='inswapper/checkpoints', progress=True, file_name=None)
     
     
 # set enhancer with RealESRGAN

@@ -13,6 +13,7 @@ import onnxruntime
 import numpy as np
 from PIL import Image
 from typing import List, Union, Dict, Set, Tuple
+from inswapper.restoration import *
 
 
 def getFaceSwapModel(model_path: str):
@@ -22,7 +23,7 @@ def getFaceSwapModel(model_path: str):
 
 def getFaceAnalyser(model_path: str, providers,
                     det_size=(320, 320)):
-    face_analyser = insightface.app.FaceAnalysis(name="buffalo_l", root="./checkpoints", providers=providers)
+    face_analyser = insightface.app.FaceAnalysis(name="buffalo_l", root="./inswapper/checkpoints", providers=providers)
     face_analyser.prepare(ctx_id=0, det_size=det_size)
     return face_analyser
 
@@ -195,6 +196,39 @@ def process(source_img: Union[Image.Image, List],
     result_image = Image.fromarray(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
     return result_image
 
+def face_swap(source_imgs, target_img, source_indexes, target_indexes, face_restore, background_enhance, face_upsample, upscale, codeformer_fidelity):
+
+    check_ckpts()  # Make sure the checkpoints downloaded successfully
+    # print("Source image paths:", source_imgs)
+    # print("Target image path:", target_img)
+
+    source_img = [Image.fromarray(np_img) for np_img in source_imgs]
+    target_img = Image.fromarray(target_img)
+
+
+    # source_img = [Image.open(img_path) for img_path in source_imgs]
+    # target_img = Image.open(target_img)
+
+    model = "./checkpoints/inswapper_128.onnx"
+    result_image = process(source_img, target_img, source_indexes, target_indexes, model)
+    
+    if face_restore:
+
+        upsampler = set_realesrgan()
+        device = torch.device("mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu")
+
+        codeformer_net = ARCH_REGISTRY.get("CodeFormer")(dim_embd=512, codebook_size=1024, n_head=8, n_layers=9, connect_list=["32", "64", "128", "256"]).to(device)
+        ckpt_path = "CodeFormer/CodeFormer/weights/CodeFormer/codeformer.pth"
+        checkpoint = torch.load(ckpt_path)["params_ema"]
+        codeformer_net.load_state_dict(checkpoint)
+        codeformer_net.eval()
+
+        result_image = cv2.cvtColor(np.array(result_image), cv2.COLOR_RGB2BGR)
+        result_image = face_restoration(result_image, background_enhance, face_upsample, upscale, codeformer_fidelity, upsampler, codeformer_net, device)
+        result_image = Image.fromarray(result_image)
+
+    # Convert result to NumPy array and return
+    return np.array(result_image)
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Face swap.")
@@ -228,7 +262,7 @@ if __name__ == "__main__":
     result_image = process(source_img, target_img, args.source_indexes, args.target_indexes, model)
     
     if args.face_restore:
-        from restoration import *
+        
         
         # make sure the ckpts downloaded successfully
         check_ckpts()
