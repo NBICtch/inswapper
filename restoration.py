@@ -18,11 +18,11 @@ from basicsr.utils.registry import ARCH_REGISTRY
 
 def check_ckpts():
     pretrain_model_url = {
-        'codeformer': 'https://github.com/sczhou/CodeFormer/releases/download/v0.1.0/codeformer.pth',
-        'detection': 'https://github.com/sczhou/CodeFormer/releases/download/v0.1.0/detection_Resnet50_Final.pth',
-        'parsing': 'https://github.com/sczhou/CodeFormer/releases/download/v0.1.0/parsing_parsenet.pth',
-        'realesrgan': 'https://github.com/sczhou/CodeFormer/releases/download/v0.1.0/RealESRGAN_x2plus.pth',
-        'inswapper': 'https://github.com/facefusion/facefusion-assets/releases/download/models/inswapper_128.onnx'
+        'codeformer': 'https://fooocus-bucket.s3.amazonaws.com/fav_models/codeformer/codeformer.pth',
+        'detection': 'https://fooocus-bucket.s3.amazonaws.com/fav_models/codeformer/detection_Resnet50_Final.pth',
+        'parsing': 'https://fooocus-bucket.s3.amazonaws.com/fav_models/codeformer/parsing_parsenet.pth',
+        'realesrgan': 'https://fooocus-bucket.s3.amazonaws.com/fav_models/codeformer/RealESRGAN_x2plus.pth',
+        'inswapper': 'https://fooocus-bucket.s3.amazonaws.com/fav_models/codeformer/inswapper_128.onnx'
     }
     # download weights
     if not os.path.exists('CodeFormer/CodeFormer/weights/CodeFormer/codeformer.pth'):
